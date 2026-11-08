@@ -1,0 +1,52 @@
+# Fabrique l'APK Android de l'application Espace H sur GitHub (gratuit).
+# Lancement : onglet « Actions » du dépôt › « APK Android (test) » › « Run workflow »
+# (ou automatiquement à chaque envoi sur la branche main).
+# Résultat : en bas de la page du lancement, « Artifacts » › Espace-H-apk (fichier .zip contenant l'APK).
+# L'APK est signée avec la clé de test : à installer sur la tablette pour essayer,
+# pas à publier sur le Play Store (pour le Store : EAS, voir LISEZ-MOI.md).
+name: APK Android (test)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Dépendances
+        run: npm ci || npm install
+
+      - name: Projet Android (expo prebuild)
+        run: npx expo prebuild --platform android --no-install
+
+      - name: Fabrication de l'APK
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease --no-daemon
+
+      - name: Nom du fichier
+        run: |
+          V=$(node -p "require('./app.json').expo.version")
+          cp android/app/build/outputs/apk/release/app-release.apk "Espace-H-${V}-test.apk"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Espace-H-apk
+          path: Espace-H-*-test.apk
+          retention-days: 30
