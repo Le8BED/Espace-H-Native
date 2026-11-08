@@ -11,9 +11,6 @@ on:
   push:
     branches: [main]
 
-permissions:
-  contents: write   # publication de l'APK (Releases) pour le site
-
 jobs:
   apk:
     runs-on: ubuntu-latest
@@ -50,18 +47,7 @@ jobs:
           V=$(node -p "require('./app.json').expo.version")
           echo "version=${V}" >> "$GITHUB_OUTPUT"
           cp android/app/build/outputs/apk/release/app-release.apk "Espace-H-${V}-test.apk"
-          cp android/app/build/outputs/apk/release/app-release.apk "Espace-H.apk"
 
-      # Publication : le site (agencehimmobilier.com/telecharger/espace-h.apk)
-      # propose toujours la dernière publication.
-      - name: Publication (Releases)
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: v${{ steps.nom.outputs.version }}-${{ github.run_number }}
-          name: Espace H ${{ steps.nom.outputs.version }} (fabrication ${{ github.run_number }})
-          body: Application Android Espace H — fabriquée automatiquement depuis ${{ github.sha }}.
-          make_latest: true
-          files: Espace-H.apk
 
       - uses: actions/upload-artifact@v4
         with:
