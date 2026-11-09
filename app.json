@@ -15,7 +15,7 @@
       }
     },
     "android": {
-      "package": "com.agencehimmobilier.espaceh.native",
+      "package": "com.agencehimmobilier.espaceh.app",
       "versionCode": 4,
       "adaptiveIcon": {
         "backgroundColor": "#FFFFFF",
